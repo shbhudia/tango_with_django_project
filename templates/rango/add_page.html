@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Rango</title>
+	</head>
+
+	<body>
+		<h1>Add a Page to {{ category.name }}</h1>
+		<div>
+			<form id="add_page_form" method="POST" action="/rango/category/{{ category.slug }}/add_page/">
+				<!-- Protect and secure the HTTP POST request  -->
+				{% csrf_token %}
+				<!-- Hidden form fields -->
+				{% for hidden in form.hidden_fields %}
+					{{ hidden }}
+				{% endfor %}
+				<!-- Visible form fields -->
+				{% for field in form.visible_fields %}
+					{{ field.errors }}
+					{{ field.help_text }}
+					{{ field }}
+				{% endfor %}
+				<input type="submit" name="submit" value="Add Page" />
+			</form>
+		</div>
+	</body>
+</html>
