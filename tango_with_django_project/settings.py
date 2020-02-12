@@ -136,3 +136,7 @@ STATIC_URL = '/static/'
 # Dynamic media files
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
+
+# Login URL (redirect any not logged in user to this page,
+# when the decorator '@login_required' is used)
+LOGIN_URL = 'rango:login'
