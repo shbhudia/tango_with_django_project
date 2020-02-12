@@ -7,6 +7,7 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 # Import the PageForm model
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.contrib.auth import authenticate, login
 
 
 def index(request):
@@ -180,6 +181,42 @@ def register(request):
 				'registered': registered})
 
 
+def user_login(request):
+	if request.method == 'POST':
+		# Gather the username and password provided by the user.
+		# This information will be obtained from the login form.
+		# We use request.POST.get('<variable>') as opposed
+		# to request.POST['<variable>'], because the
+		# request.POST.get('<variable>') returns None if the
+		# value does not exist, while request.POST['<variable>']
+		# will raise a KeyError exception.
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+
+		# Use Django's machinery to attempt to see if the username/password
+		# combination is valid - a User object is returned if it is.
+		user = authenticate(username=username, password=password)
+
+		# If None, no user with matching credentials was found.
+		if user:
+			if user.is_active:
+				# If the account is valid and active, we can log the user in.
+				# We'll send the user back to the homepage.
+				login(request, user)
+				return redirect(reverse('rango:index'))
+			else:
+				# An inactive account was used - no logging in!
+				return HttpResponse("Your Rango acount has been disabled.")
+
+		else:
+			print(f"Invalid login details: {username}, {password}")
+			return HttpResponse("Invalid login details suplied.")
+
+	# HTTP GET
+	else:
+		# No context variables to pass to the template system, hence the
+		# blank dictionary object...
+		return render(request, 'rango/login.html')
 
 
 
