@@ -35,8 +35,6 @@ def index(request):
 	# Call the helper function to handle the cookies
 	visitor_cookie_handler(request)
 
-	context_dict['visits'] = request.session['visits']
-
 	# Return a rendered response to send to the client.
 	# We make use of the shortcut function to make our lives easier.
 	# Note that the first parameter is the template we wish to use.
@@ -44,7 +42,14 @@ def index(request):
 
 
 def about(request):
-	return render(request, 'rango/about.html')
+	context_dict = {}
+
+	# Call the helper function to handle the cookies
+	visitor_cookie_handler(request)
+
+	context_dict['visits'] = request.session['visits']
+
+	return render(request, 'rango/about.html', context=context_dict)
 
 
 def show_category(request, category_name_slug):
@@ -254,15 +259,16 @@ def visitor_cookie_handler(request):
 	# We use the COOKIES.get() function to obtain the visits cookie.
 	# If the cookie exists, the value returned is casted to an integer.
 	# If the cookie doesn't exist, then the default value of 1 is used.
-	visits = int(request.COOKIES.get('visits', '1'))
+	visits = int(get_server_side_cookie(request, 'visits', '1'))
 	
-	last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+	last_visit_cookie = get_server_side_cookie(request, 'last_visit',
+											str(datetime.now()))
 	last_visit_time = datetime.strptime(last_visit_cookie[:-7],
 										'%Y-%m-%d %H:%M:%S')
 	
 	# If it's been more than a day since the last visit...
 	if (datetime.now() - last_visit_time).days > 0:
-		visits = visits + 1
+		visits += 1
 		# Update the last visit cookie now that we have updated the count
 		request.session['last_visit'] = str(datetime.now())
 	else:
